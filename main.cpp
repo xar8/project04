@@ -4,6 +4,10 @@
 #include <iostream>
 #include <string>
 #include <cstdlib>
+#include <stdio.h>
+#include <unistd.h>
+#include <termios.h>
+
 //#include "MyNixCLI/MyNixCLI.h"
 
 using namespace std;
@@ -14,32 +18,40 @@ int GAME_WIDTH = 100;
 
 //function prototypes
 vector <vector <char> > createGameBoard(vector <vector <char> >&);
-void fillGameBoard(vector <vector <char> >&);
+void clearGameBoard(vector <vector <char> >&);
 void updateGameBoard(vector <vector <char> >&);
 vector<int> createDinosaur(vector <vector <char> >&,vector<int>&);
 vector<int> moveDinosaur(vector <vector <char> >&,vector<int>&,char);
 
 int main()
 {
+  //make it so enter is not required
+  struct termios old_tio, new_tio;
+  unsigned char action;
+  tcgetattr(STDIN_FILENO,&old_tio);
+  new_tio=old_tio;
+  new_tio.c_lflag &=(~ICANON & ~ECHO);
+  tcsetattr(STDIN_FILENO,TCSANOW,&new_tio);
+
   vector <vector <char> > gameBoard;
   vector<int> dinosaurLocation;
   dinosaurLocation.resize(3);
   dinosaurLocation[2] = 2;
-  char action;
   int rand();
-  cout<<rand();
   gameBoard = createGameBoard(gameBoard);
-  fillGameBoard(gameBoard);
+  clearGameBoard(gameBoard);
   dinosaurLocation = createDinosaur(gameBoard,dinosaurLocation);
-  updateGameBoard(gameBoard);
+  updateGameBoard(gameBoard);        
   do
   {
-    cin>>action;
-    fillGameBoard(gameBoard);
+    action = getchar();
+    clearGameBoard(gameBoard);
     dinosaurLocation = moveDinosaur(gameBoard,dinosaurLocation,action);
     updateGameBoard(gameBoard);
   } while(action != 'q');
- 
+  
+  //restore enter functionality
+  tcsetattr(STDIN_FILENO,TCSANOW,&old_tio);
   return 0;
 }
 
@@ -59,8 +71,8 @@ vector <vector <char> > createGameBoard(vector <vector <char> > &board)
   return board;
 }
 
-//Fill gameboard
-void fillGameBoard(vector <vector <char> > &board)
+//Clear gameboard
+void clearGameBoard(vector <vector <char> > &board)
 {
   for(int row = 0;row < board.size();row++)
   {
@@ -68,7 +80,7 @@ void fillGameBoard(vector <vector <char> > &board)
     {
       if(row == 0 || row == GAME_HEIGHT-1 || column == 0 || column == GAME_WIDTH-1)
       {
-        board[row][column] = '#';
+        board[row][column] = ' ';
         cout<<board[row][column];
       }
       else
@@ -106,9 +118,10 @@ vector<int> createDinosaur(vector <vector <char> > &board, vector <int> &locatio
   board[startRow][startColumn+8] = '/';
   board[startRow][startColumn+9] = '|';
   board[startRow-1][startColumn+9] = '|';
-  board[startRow-1][startColumn+10] = '|';
-  board[startRow-1][startColumn+11] = 'D';
-  board[startRow+1][startColumn+5] = '`';
+  board[startRow-1][startColumn+10] = '\'';
+  board[startRow-1][startColumn+11] = '|';
+  board[startRow-1][startColumn+12] = ']';
+  board[startRow+1][startColumn+5] = '\\';
   board[startRow+1][startColumn+6] = '|';
   board[startRow+1][startColumn+7] = '|';
   board[startRow+1][startColumn+8] = '|';
@@ -161,12 +174,13 @@ vector<int> moveDinosaur(vector <vector <char> > &board,vector<int> &location,ch
       board[startRow][startColumn-3] = '_';
       board[startRow][startColumn-4] = '_';
       board[startRow][startColumn-5] = '_';
-      board[startRow][startColumn-8] = '/';
+      board[startRow][startColumn-8] = '\\';
       board[startRow][startColumn-9] = '|';
       board[startRow-1][startColumn-9] = '|';
-      board[startRow-1][startColumn-10] = '|';
-      board[startRow-1][startColumn-11] = 'D';
-      board[startRow+1][startColumn-5] = '`';
+      board[startRow-1][startColumn-10] = '\'';
+      board[startRow-1][startColumn-11] = '|';
+      board[startRow-1][startColumn-12] = '[';
+      board[startRow+1][startColumn-5] = '/';
       board[startRow+1][startColumn-6] = '|';
       board[startRow+1][startColumn-7] = '|';
       board[startRow+1][startColumn-8] = '|';
@@ -177,7 +191,7 @@ vector<int> moveDinosaur(vector <vector <char> > &board,vector<int> &location,ch
       board[startRow+2][startColumn-8] = '|';
       board[startRow+3][startColumn-6] = '-';
       board[startRow+3][startColumn-8] = '-';
-      
+    
       direction = 1;
       break;    
     case 'd': //move right
@@ -209,9 +223,10 @@ vector<int> moveDinosaur(vector <vector <char> > &board,vector<int> &location,ch
       board[startRow][startColumn+8] = '/';
       board[startRow][startColumn+9] = '|';
       board[startRow-1][startColumn+9] = '|';
-      board[startRow-1][startColumn+10] = '|';
-      board[startRow-1][startColumn+11] = 'D';
-      board[startRow+1][startColumn+5] = '`';
+      board[startRow-1][startColumn+10] = '\'';
+      board[startRow-1][startColumn+11] = '|';
+      board[startRow-1][startColumn+12] = ']';
+      board[startRow+1][startColumn+5] = '\\';
       board[startRow+1][startColumn+6] = '|';
       board[startRow+1][startColumn+7] = '|';
       board[startRow+1][startColumn+8] = '|';
@@ -288,12 +303,12 @@ vector<int> moveDinosaur(vector <vector <char> > &board,vector<int> &location,ch
           break;     
       }
       board[startRow][startColumn] = '|';
-      board[startRow-1][startColumn] = '~';
-      board[startRow-1][startColumn-1] = '~';
-      board[startRow-1][startColumn+1] = '~';
+      board[startRow-1][startColumn] = 'v';
+      board[startRow-1][startColumn-1] = 'v';
+      board[startRow-1][startColumn+1] = 'v';
       board[startRow-2][startColumn] = '_';
-      board[startRow-2][startColumn-1] = 'o';
-      board[startRow-2][startColumn+1] = 'o';
+      board[startRow-2][startColumn-1] = '.';
+      board[startRow-2][startColumn+1] = '.';
       board[startRow+1][startColumn-1] = ',';
       board[startRow+1][startColumn+1] = ',';
       board[startRow+2][startColumn] = '-';
