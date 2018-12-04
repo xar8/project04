@@ -17,7 +17,7 @@ using namespace std;
 //Global Variables
 int GAME_HEIGHT = 65;
 int GAME_WIDTH = 100;
-
+int GAME_BORDER = 4;
 //function prototypes
 vector <vector <char> > createGameBoard(vector <vector <char> >&);
 void clearGameBoard(vector <vector <char> >&);
@@ -44,8 +44,8 @@ int main()
   vector<int> personLocation;
   personLocation.resize(2);
   srand(time(0));
-  int personLocationColumn = rand() % GAME_WIDTH;
-  int personLocationRow = rand() % GAME_HEIGHT;
+  int personLocationColumn = (rand() % GAME_WIDTH-GAME_BORDER)+GAME_BORDER;
+  int personLocationRow = (rand() % GAME_HEIGHT-GAME_BORDER)+GAME_BORDER;
  
   //Setup gameboard
   gameBoard = createGameBoard(gameBoard);
@@ -133,30 +133,30 @@ vector<int> createDinosaur(vector <vector <char> > &board, vector <int> &locatio
 {
   int startRow = GAME_HEIGHT/2;
   int startColumn = GAME_WIDTH/2;
-  board[startRow][startColumn] = '_';
-  board[startRow][startColumn+1] = '_';
-  board[startRow][startColumn+2] = '_';
-  board[startRow][startColumn+3] = '_';
-  board[startRow][startColumn+4] = '_';
-  board[startRow][startColumn+5] = '_';
-  board[startRow][startColumn+8] = '/';
-  board[startRow][startColumn+9] = '|';
-  board[startRow-1][startColumn+9] = '|';
-  board[startRow-1][startColumn+10] = '\'';
-  board[startRow-1][startColumn+11] = '|';
-  board[startRow-1][startColumn+12] = ']';
-  board[startRow+1][startColumn+5] = '\\';
-  board[startRow+1][startColumn+6] = '|';
-  board[startRow+1][startColumn+7] = '|';
-  board[startRow+1][startColumn+8] = '|';
-  board[startRow+1][startColumn+9] = '|';
-  board[startRow+1][startColumn+10] = ',';
-  board[startRow+1][startColumn+11] = ',';
-  board[startRow+2][startColumn+6] = '|';
-  board[startRow+2][startColumn+8] = '|';
-  board[startRow+3][startColumn+6] = '-';
-  board[startRow+3][startColumn+8] = '-';
-  
+  board[startRow][startColumn] = '|';
+  board[startRow][startColumn-1] = '\\';
+  board[startRow][startColumn+1] = '|';
+  board[startRow][startColumn+2] = '|';
+  board[startRow][startColumn+3] = '|';
+  board[startRow][startColumn+4] = ',';
+  board[startRow][startColumn+5] = ',';
+  board[startRow+1][startColumn] = '|';
+  board[startRow+1][startColumn+2] = '|';
+  board[startRow+2][startColumn] = '-';
+  board[startRow+2][startColumn+2] = '-';
+  board[startRow-1][startColumn-1] = '_';
+  board[startRow-1][startColumn-2] = '_';
+  board[startRow-1][startColumn-3] = '_';
+  board[startRow-1][startColumn-4] = '_';
+  board[startRow-1][startColumn-5] = '_';
+  board[startRow-1][startColumn-6] = '_';
+  board[startRow-1][startColumn+2] = '/';
+  board[startRow-1][startColumn+3] = '|';
+  board[startRow-2][startColumn+3] = '|';
+  board[startRow-2][startColumn+4] = '\'';
+  board[startRow-2][startColumn+5] = '|';
+  board[startRow-2][startColumn+6] = ']';
+ 
   location[0] = startRow;
   location[1] = startColumn;
 
@@ -175,52 +175,55 @@ vector<int> moveDinosaur(vector <vector <char> > &board,vector<int> &location,ch
 
   switch(moveAction)
   {
-    case 'a': //move left 
-      switch(direction)
+    case 'a': //move left
+      if(startColumn-6 > GAME_BORDER)
       {
-        case 1:
-          startColumn = location[1]-2;
-          startRow = location[0];
-          break;
-        case 2:
-          startColumn = location[1]+11;
-          startRow = location[0];
-          break;
-        case 3:
-          startColumn = location[1]+7;
-          startRow = location[0];
-          break;
-        case 4:
-          startColumn = location[1]+7;
-          startRow = location[0];
-          break;
-      }        
-      board[startRow][startColumn] = '_';
-      board[startRow][startColumn-1] = '_';
-      board[startRow][startColumn-2] = '_';
-      board[startRow][startColumn-3] = '_';
-      board[startRow][startColumn-4] = '_';
-      board[startRow][startColumn-5] = '_';
-      board[startRow][startColumn-8] = '\\';
-      board[startRow][startColumn-9] = '|';
-      board[startRow-1][startColumn-9] = '|';
-      board[startRow-1][startColumn-10] = '\'';
-      board[startRow-1][startColumn-11] = '|';
-      board[startRow-1][startColumn-12] = '[';
-      board[startRow+1][startColumn-5] = '/';
-      board[startRow+1][startColumn-6] = '|';
-      board[startRow+1][startColumn-7] = '|';
-      board[startRow+1][startColumn-8] = '|';
-      board[startRow+1][startColumn-9] = '|';
-      board[startRow+1][startColumn-10] = ',';
-      board[startRow+1][startColumn-11] = ',';
-      board[startRow+2][startColumn-6] = '|';
-      board[startRow+2][startColumn-8] = '|';
-      board[startRow+3][startColumn-6] = '-';
-      board[startRow+3][startColumn-8] = '-';
-      
+        switch(direction)
+        {
+          case 1:
+            startColumn = location[1]-2;
+            startRow = location[0];
+            break;
+          case 2:
+            startColumn = location[1];
+            startRow = location[0];
+            break;
+          case 3:
+            startColumn = location[1];
+            startRow = location[0];
+            break;
+          case 4:
+            startColumn = location[1];
+            startRow = location[0];
+            break;
+        }
+      }
+      board[startRow][startColumn] = '|';
+      board[startRow][startColumn+1] = '/';
+      board[startRow][startColumn-1] = '|';
+      board[startRow][startColumn-2] = '|';
+      board[startRow][startColumn-3] = '|';
+      board[startRow][startColumn-4] = ',';
+      board[startRow][startColumn-5] = ',';
+      board[startRow+1][startColumn] = '|';
+      board[startRow+1][startColumn-2] = '|';
+      board[startRow+2][startColumn] = '-';
+      board[startRow+2][startColumn-2] = '-';
+      board[startRow-1][startColumn+1] = '_';
+      board[startRow-1][startColumn+2] = '_';
+      board[startRow-1][startColumn+3] = '_';
+      board[startRow-1][startColumn+4] = '_';
+      board[startRow-1][startColumn+5] = '_';
+      board[startRow-1][startColumn+6] = '_';
+      board[startRow-1][startColumn-2] = '\\';
+      board[startRow-1][startColumn-3] = '|';
+      board[startRow-2][startColumn-3] = '|';
+      board[startRow-2][startColumn-4] = '\'';
+      board[startRow-2][startColumn-5] = '|';
+      board[startRow-2][startColumn-6] = '[';
+ 
       //check if you have bumped the person
-      if((personRow <= startRow+3 && personRow >= startRow-1) && (personColumn <= startColumn && personColumn >= startColumn - 12))
+      if((personRow <= startRow+2 && personRow >= startRow-2) && (personColumn <= startColumn+6 && personColumn >= startColumn-6))
       {
         personBump = 1; 
       }
@@ -231,51 +234,54 @@ vector<int> moveDinosaur(vector <vector <char> > &board,vector<int> &location,ch
       direction = 1;
       break;    
     case 'd': //move right
-      switch(direction)
+      if(startColumn+6 < GAME_WIDTH-GAME_BORDER)    
       {
-        case 1:
-          startColumn = location[1]-11;
-          startRow = location[0];
-          break;
-        case 2:
-          startColumn = location[1]+2;
-          startRow = location[0];
-          break;
-        case 3:
-          startColumn = location[1]-7;
-          startRow = location[0];
-          break;
-        case 4:
-          startColumn = location[1]-7;
-          startRow = location[0];
-          break;
-      }    
-      board[startRow][startColumn] = '_';
-      board[startRow][startColumn+1] = '_';
-      board[startRow][startColumn+2] = '_';
-      board[startRow][startColumn+3] = '_';
-      board[startRow][startColumn+4] = '_';
-      board[startRow][startColumn+5] = '_';
-      board[startRow][startColumn+8] = '/';
-      board[startRow][startColumn+9] = '|';
-      board[startRow-1][startColumn+9] = '|';
-      board[startRow-1][startColumn+10] = '\'';
-      board[startRow-1][startColumn+11] = '|';
-      board[startRow-1][startColumn+12] = ']';
-      board[startRow+1][startColumn+5] = '\\';
-      board[startRow+1][startColumn+6] = '|';
-      board[startRow+1][startColumn+7] = '|';
-      board[startRow+1][startColumn+8] = '|';
-      board[startRow+1][startColumn+9] = '|';
-      board[startRow+1][startColumn+10] = ',';
-      board[startRow+1][startColumn+11] = ',';
-      board[startRow+2][startColumn+6] = '|';
-      board[startRow+2][startColumn+8] = '|';
-      board[startRow+3][startColumn+6] = '-';
-      board[startRow+3][startColumn+8] = '-';
-      
+        switch(direction)
+        {
+          case 1:
+            startColumn = location[1];
+            startRow = location[0];
+            break;
+          case 2:
+            startColumn = location[1]+2;
+            startRow = location[0];
+            break;
+          case 3:
+            startColumn = location[1];
+            startRow = location[0];
+            break;
+          case 4:
+            startColumn = location[1];
+            startRow = location[0];
+            break;
+        }
+      }
+      board[startRow][startColumn] = '|';
+      board[startRow][startColumn-1] = '\\';
+      board[startRow][startColumn+1] = '|';
+      board[startRow][startColumn+2] = '|';
+      board[startRow][startColumn+3] = '|';
+      board[startRow][startColumn+4] = ',';
+      board[startRow][startColumn+5] = ',';
+      board[startRow+1][startColumn] = '|';
+      board[startRow+1][startColumn+2] = '|';
+      board[startRow+2][startColumn] = '-';
+      board[startRow+2][startColumn+2] = '-';
+      board[startRow-1][startColumn-1] = '_';
+      board[startRow-1][startColumn-2] = '_';
+      board[startRow-1][startColumn-3] = '_';
+      board[startRow-1][startColumn-4] = '_';
+      board[startRow-1][startColumn-5] = '_';
+      board[startRow-1][startColumn-6] = '_';
+      board[startRow-1][startColumn+2] = '/';
+      board[startRow-1][startColumn+3] = '|';
+      board[startRow-2][startColumn+3] = '|';
+      board[startRow-2][startColumn+4] = '\'';
+      board[startRow-2][startColumn+5] = '|';
+      board[startRow-2][startColumn+6] = ']';
+ 
       //check if you have bumped the person
-      if((personRow <= startRow+3 && personRow >= startRow-1) && (personColumn <= startColumn+12 && personColumn >= startColumn))
+      if((personRow <= startRow+2 && personRow >= startRow-2) && (personColumn <= startColumn+6 && personColumn >= startColumn-6))
       {
         personBump = 1; 
       }
@@ -287,47 +293,46 @@ vector<int> moveDinosaur(vector <vector <char> > &board,vector<int> &location,ch
       direction = 2;
       break;
     case 'w': //move up
-      switch(direction)
-      {
-        case 1:
-          startColumn = location[1]-7;
-          startRow = location[0]-1;  
-          break;
-        case 2:
-          startColumn = location[1]+7;
-          startRow = location[0]-1;  
-          break;
-        case 3:
-          startColumn = location[1];
-          startRow = location[0]-2;  
-          break;
-        case 4:
-          startColumn = location[1];
-          startRow = location[0]-2;  
-          break;     
+      if(startRow-2 > GAME_BORDER)  
+      {  
+        switch(direction)
+        {
+          case 1:
+            startColumn = location[1];
+            startRow = location[0]-1;  
+            break;
+          case 2:
+            startColumn = location[1];
+            startRow = location[0]-1;  
+            break;
+          case 3:
+            startColumn = location[1];
+            startRow = location[0]-2;  
+            break;
+          case 4:
+            startColumn = location[1];
+            startRow = location[0]-2;  
+            break;     
+        }
       }
-      board[startRow][startColumn] = '|';
+      board[startRow][startColumn] = '_';
+      board[startRow][startColumn+1] = '_';
+      board[startRow][startColumn-1] = '_';
+      board[startRow][startColumn+2] = '|';
+      board[startRow][startColumn-2] = '|';
       board[startRow-1][startColumn] = '_';
-      board[startRow-1][startColumn-1] = '_';
       board[startRow-1][startColumn+1] = '_';
-      board[startRow+1][startColumn] = '_';
-      board[startRow+1][startColumn-1] = '_';
-      board[startRow+1][startColumn+1] = '_';
-      board[startRow+2][startColumn-2] = '|';
-      board[startRow+2][startColumn-1] = '_';
-      board[startRow+2][startColumn] = '_';
-      board[startRow+2][startColumn+1] = '_';
-      board[startRow+2][startColumn+2] = '|';
-      board[startRow+3][startColumn-2] = '|';
-      board[startRow+3][startColumn] = '|';
-      board[startRow+3][startColumn+2] = '|';
-      board[startRow+4][startColumn-2] = '-';
-      board[startRow+4][startColumn] = '|';
-      board[startRow+4][startColumn+2] = '-';
-      board[startRow+5][startColumn] = '|';
-      
+      board[startRow-1][startColumn-1] = '_';
+      board[startRow-2][startColumn] = '_';
+      board[startRow+1][startColumn] = '|';
+      board[startRow+1][startColumn+2] = '|';
+      board[startRow+1][startColumn-2] = '|';
+      board[startRow+2][startColumn] = '|';
+      board[startRow+2][startColumn+2] = '-';
+      board[startRow+2][startColumn-2] = '-';
+     
       //check if you have bumped the person
-      if((personRow <= startRow+5 && personRow >= startRow-1) && (personColumn <= startColumn+2 && personColumn >= startColumn -2))
+      if((personRow <= startRow+2 && personRow >= startRow-2) && (personColumn <= startColumn+2 && personColumn >= startColumn -2))
       {
         personBump = 1; 
       }
@@ -339,42 +344,44 @@ vector<int> moveDinosaur(vector <vector <char> > &board,vector<int> &location,ch
       direction = 3;
       break;
     case 's': //move down
-      switch(direction)
+      if(startRow+2 < GAME_HEIGHT-GAME_BORDER)
       {
-        case 1:
-          startColumn = location[1]-7;
-          startRow = location[0];  
-          break;
-        case 2:
-          startColumn = location[1]+7;
-          startRow = location[0];  
-          break;
-        case 3:
-          startColumn = location[1];
-          startRow = location[0]+2;  
-          break;
-        case 4:
-          startColumn = location[1];
-          startRow = location[0]+2;  
-          break;     
-      }
-      board[startRow][startColumn] = '|';
+        switch(direction)
+        {
+          case 1:
+            startColumn = location[1];
+            startRow = location[0];  
+            break;
+          case 2:
+            startColumn = location[1];
+            startRow = location[0];  
+            break;
+          case 3:
+            startColumn = location[1];
+            startRow = location[0]+2;  
+            break;
+          case 4:
+            startColumn = location[1];
+            startRow = location[0]+2;  
+            break;     
+        }
+      }  
+      board[startRow][startColumn+1] = ',';
+      board[startRow][startColumn-1] = ',';
       board[startRow-1][startColumn] = 'v';
-      board[startRow-1][startColumn-1] = 'v';
       board[startRow-1][startColumn+1] = 'v';
+      board[startRow-1][startColumn-1] = 'v';
       board[startRow-2][startColumn] = '_';
-      board[startRow-2][startColumn-1] = '.';
       board[startRow-2][startColumn+1] = '.';
-      board[startRow+1][startColumn-1] = ',';
-      board[startRow+1][startColumn+1] = ',';
-      board[startRow+2][startColumn] = '-';
-      board[startRow+2][startColumn+2] = '|';
-      board[startRow+2][startColumn-2] = '|';
-      board[startRow+3][startColumn-2] = '-';
-      board[startRow+3][startColumn+2] = '-';
+      board[startRow-2][startColumn-1] = '.';
+      board[startRow+1][startColumn+2] = '|';
+      board[startRow+1][startColumn] = '-';
+      board[startRow+1][startColumn-2] = '|';
+      board[startRow+2][startColumn+2] = '-';
+      board[startRow+2][startColumn-2] = '-';
       
       //check if you have bumped the person
-      if((personRow <= startRow+3 && personRow >= startRow-2) && (personColumn <= startColumn+2 && personColumn >= startColumn -2))
+      if((personRow <= startRow+2 && personRow >= startRow-2) && (personColumn <= startColumn+2 && personColumn >= startColumn -2))
       {
         personBump = 1; 
       }
