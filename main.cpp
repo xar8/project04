@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <termios.h>
+#include <cstdlib>
+#include <ctime>
 
 //#include "MyNixCLI/MyNixCLI.h"
 
@@ -21,7 +23,8 @@ vector <vector <char> > createGameBoard(vector <vector <char> >&);
 void clearGameBoard(vector <vector <char> >&);
 void updateGameBoard(vector <vector <char> >&);
 vector<int> createDinosaur(vector <vector <char> >&,vector<int>&);
-vector<int> moveDinosaur(vector <vector <char> >&,vector<int>&,char);
+vector<int> moveDinosaur(vector <vector <char> >&,vector<int>&,char,vector<int>);
+vector<int> createPerson(vector <vector <char> >&,int,int);
 
 int main()
 {
@@ -32,21 +35,42 @@ int main()
   new_tio=old_tio;
   new_tio.c_lflag &=(~ICANON & ~ECHO);
   tcsetattr(STDIN_FILENO,TCSANOW,&new_tio);
-
+  
+  //Setup
   vector <vector <char> > gameBoard;
   vector<int> dinosaurLocation;
-  dinosaurLocation.resize(3);
+  dinosaurLocation.resize(4);
   dinosaurLocation[2] = 2;
-  int rand();
+  vector<int> personLocation;
+  personLocation.resize(2);
+  srand(time(0));
+  int personLocationColumn = rand() % GAME_WIDTH;
+  int personLocationRow = rand() % GAME_HEIGHT;
+ 
+  //Setup gameboard
   gameBoard = createGameBoard(gameBoard);
   clearGameBoard(gameBoard);
   dinosaurLocation = createDinosaur(gameBoard,dinosaurLocation);
-  updateGameBoard(gameBoard);        
+  personLocation = createPerson(gameBoard,personLocationRow,personLocationColumn);
+  updateGameBoard(gameBoard);
+
+  //Play game
   do
   {
     action = getchar();
     clearGameBoard(gameBoard);
-    dinosaurLocation = moveDinosaur(gameBoard,dinosaurLocation,action);
+    dinosaurLocation = moveDinosaur(gameBoard,dinosaurLocation,action,personLocation);
+    if(dinosaurLocation[3] == 1)
+    {
+      personLocationColumn = rand() % GAME_WIDTH;
+      personLocationRow = rand() % GAME_HEIGHT;
+      personLocation = createPerson(gameBoard,personLocationRow,personLocationColumn);
+    }
+    else
+    {
+      personLocation = createPerson(gameBoard,personLocationRow,personLocationColumn);
+    }
+    dinosaurLocation[3] = 0;
     updateGameBoard(gameBoard);
   } while(action != 'q');
   
@@ -139,13 +163,16 @@ vector<int> createDinosaur(vector <vector <char> > &board, vector <int> &locatio
   return location;
 }
 
-//Move Dinosaur Right
-vector<int> moveDinosaur(vector <vector <char> > &board,vector<int> &location,char moveAction)
+//Move Dinosaur
+vector<int> moveDinosaur(vector <vector <char> > &board,vector<int> &location,char moveAction,vector<int> personLoc)
 {
   int startColumn = location[1];
   int startRow = location[0];
   int direction = location[2];
-  
+  int personBump = location[3];
+  int personRow = personLoc[0];
+  int personColumn = personLoc[1];
+
   switch(moveAction)
   {
     case 'a': //move left 
@@ -191,7 +218,16 @@ vector<int> moveDinosaur(vector <vector <char> > &board,vector<int> &location,ch
       board[startRow+2][startColumn-8] = '|';
       board[startRow+3][startColumn-6] = '-';
       board[startRow+3][startColumn-8] = '-';
-    
+      
+      //check if you have bumped the person
+      if((personRow <= startRow+3 && personRow >= startRow-1) && (personColumn <= startColumn && personColumn >= startColumn - 12))
+      {
+        personBump = 1; 
+      }
+      else
+      {
+        personBump = 0;
+      }
       direction = 1;
       break;    
     case 'd': //move right
@@ -238,6 +274,16 @@ vector<int> moveDinosaur(vector <vector <char> > &board,vector<int> &location,ch
       board[startRow+3][startColumn+6] = '-';
       board[startRow+3][startColumn+8] = '-';
       
+      //check if you have bumped the person
+      if((personRow <= startRow+3 && personRow >= startRow-1) && (personColumn <= startColumn+12 && personColumn >= startColumn))
+      {
+        personBump = 1; 
+      }
+      else
+      {
+        personBump = 0;
+      }    
+      
       direction = 2;
       break;
     case 'w': //move up
@@ -279,7 +325,17 @@ vector<int> moveDinosaur(vector <vector <char> > &board,vector<int> &location,ch
       board[startRow+4][startColumn] = '|';
       board[startRow+4][startColumn+2] = '-';
       board[startRow+5][startColumn] = '|';
-     
+      
+      //check if you have bumped the person
+      if((personRow <= startRow+5 && personRow >= startRow-1) && (personColumn <= startColumn+2 && personColumn >= startColumn -2))
+      {
+        personBump = 1; 
+      }
+      else
+      {
+        personBump = 0;
+      } 
+      
       direction = 3;
       break;
     case 's': //move down
@@ -316,7 +372,17 @@ vector<int> moveDinosaur(vector <vector <char> > &board,vector<int> &location,ch
       board[startRow+2][startColumn-2] = '|';
       board[startRow+3][startColumn-2] = '-';
       board[startRow+3][startColumn+2] = '-';
-     
+      
+      //check if you have bumped the person
+      if((personRow <= startRow+3 && personRow >= startRow-2) && (personColumn <= startColumn+2 && personColumn >= startColumn -2))
+      {
+        personBump = 1; 
+      }
+      else
+      {
+        personBump = 0;
+      } 
+      
       direction = 4;
       break;
   }
@@ -324,6 +390,27 @@ vector<int> moveDinosaur(vector <vector <char> > &board,vector<int> &location,ch
   location[0] = startRow;
   location[1] = startColumn;
   location[2] = direction;
+  location[3] = personBump;
 
   return location;
 }
+
+//create Person
+vector<int> createPerson(vector <vector <char> > &board,int startRow,int startColumn)
+{
+  vector<int> personLocation;
+  personLocation.resize(2);
+  board[startRow][startColumn] = 'o';
+  board[startRow+1][startColumn] = '|';
+  board[startRow+1][startColumn-1] = '~';
+  board[startRow+1][startColumn+1] = '~';
+  board[startRow+2][startColumn-1] = '/';
+  board[startRow+2][startColumn+1] = '\\';
+
+  personLocation[0] = startRow;
+  personLocation[1] = startColumn;
+
+  return personLocation;
+}
+
+
