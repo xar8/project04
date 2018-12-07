@@ -9,19 +9,25 @@
 #include <termios.h>
 #include <cstdlib>
 #include <ctime>
-
-//#include "MyNixCLI/MyNixCLI.h"
+#include "MyNixCLI/MyNixCLI.h"
 
 using namespace std;
                                                             
 //Global Variables
-int GAME_HEIGHT = 65;
-int GAME_WIDTH = 100;
+MyNixCLI terminal;
+int GAME_WIDTH = terminal.characterWidth();
+int GAME_HEIGHT = terminal.characterHeight();
+//int GAME_HEIGHT = 65;
+//int GAME_WIDTH = 100;
 int GAME_BORDER = 4;
+int GAME_BORDER_PERSON = 8;
+
+
 //function prototypes
 vector <vector <char> > createGameBoard(vector <vector <char> >&);
 void clearGameBoard(vector <vector <char> >&);
 void updateGameBoard(vector <vector <char> >&);
+void updateScore(vector <vector <char> >&,int,vector<int>&);
 vector<int> createDinosaur(vector <vector <char> >&,vector<int>&);
 vector<int> moveDinosaur(vector <vector <char> >&,vector<int>&,char,vector<int>);
 vector<int> createPerson(vector <vector <char> >&,int,int);
@@ -44,15 +50,21 @@ int main()
   vector<int> personLocation;
   personLocation.resize(2);
   srand(time(0));
-  int personLocationColumn = (rand() % GAME_WIDTH-GAME_BORDER)+GAME_BORDER;
-  int personLocationRow = (rand() % GAME_HEIGHT-GAME_BORDER)+GAME_BORDER;
- 
+  int personLocationColumn = rand() % (GAME_WIDTH-GAME_BORDER_PERSON)+GAME_BORDER_PERSON;
+  int personLocationRow = rand() % (GAME_HEIGHT-GAME_BORDER_PERSON)+GAME_BORDER_PERSON;
+  vector<int> score;
+  score.resize(1);
+  MyNixCLI terminal;
+  int maxColumns = terminal.characterWidth();
+  int maxRows = terminal.characterHeight();
+
   //Setup gameboard
   gameBoard = createGameBoard(gameBoard);
   clearGameBoard(gameBoard);
   dinosaurLocation = createDinosaur(gameBoard,dinosaurLocation);
   personLocation = createPerson(gameBoard,personLocationRow,personLocationColumn);
   updateGameBoard(gameBoard);
+  updateScore(gameBoard,0,score);
 
   //Play game
   do
@@ -60,11 +72,12 @@ int main()
     action = getchar();
     clearGameBoard(gameBoard);
     dinosaurLocation = moveDinosaur(gameBoard,dinosaurLocation,action,personLocation);
-    if(dinosaurLocation[3] == 1)
+    if(dinosaurLocation[3] == 1) //person has been eaten
     {
-      personLocationColumn = rand() % GAME_WIDTH;
-      personLocationRow = rand() % GAME_HEIGHT;
+      personLocationColumn = rand() % (GAME_WIDTH-GAME_BORDER_PERSON)+GAME_BORDER_PERSON;
+      personLocationRow = rand() % (GAME_HEIGHT-GAME_BORDER_PERSON)+GAME_BORDER_PERSON;
       personLocation = createPerson(gameBoard,personLocationRow,personLocationColumn);
+      updateScore(gameBoard,1,score);
     }
     else
     {
@@ -72,8 +85,13 @@ int main()
     }
     dinosaurLocation[3] = 0;
     updateGameBoard(gameBoard);
+    updateScore(gameBoard,0,score);
   } while(action != 'q');
   
+  clearGameBoard(gameBoard);
+  updateGameBoard(gameBoard);
+  cout<<"Thank you for playing!" << endl;
+
   //restore enter functionality
   tcsetattr(STDIN_FILENO,TCSANOW,&old_tio);
   return 0;
@@ -420,4 +438,18 @@ vector<int> createPerson(vector <vector <char> > &board,int startRow,int startCo
   return personLocation;
 }
 
+//update Scoreboard
+void updateScore(vector <vector <char> > &board, int count,vector<int> &scoreTracker)
+{
+  int scoreStart;
+  int scoreFinal;
+  char scoreChar;
+  char scoreCharTen;
+  scoreStart = scoreTracker[0];
+  scoreFinal = scoreStart + count;
+  scoreTracker[0] = scoreFinal;
+ 
+  //People Eaten: 
+  cout<<"PEOPLE EATEN: "<< scoreFinal;
+}
 
